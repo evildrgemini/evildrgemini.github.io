@@ -14,9 +14,6 @@ let isMasturbationMode = false; // Default mode
 let isLoading = false;
 let apiKeyLocked = false;
 let localGameStateSnapshot = null; // To store local state when viewing remote state
-let hiddenAnalysisContent = null; // To store content of gemini_facing_analysis for modal
-let hiddenAnalysisContentTweet = null; // To store content of gemini_facing_analysis for modal
-let hiddenAnalysisContentNotes = null; // To store content of gemini_facing_analysis for modal
 
 // --- Model Switching State ---
 const AVAILABLE_MODELS = [
@@ -51,10 +48,6 @@ const footerBanner = document.getElementById('footerBanner');
 const footerElement = document.querySelector('.site-footer');
 const h1 = document.querySelector('h1');
 let peerListContainer = null; // Will be created dynamically
-// Add references for the modal (assuming HTML structure exists)
-const analysisModal = document.getElementById('analysisModal'); // e.g., <div id="analysisModal" class="modal" style="display:none;">...</div>
-const analysisModalBody = document.getElementById('analysisModalBody'); // e.g., <div id="analysisModalBody"></div> inside the modal
-const analysisModalClose = document.getElementById('analysisModalClose'); // e.g., <button id="analysisModalClose">Close</button> inside the modal
 
 // --- Web Audio API Context ---
 let audioCtx = null;
@@ -432,7 +425,6 @@ async function callRealGeminiAPI(apiKey, promptText, modelName) {
 /** Renders the UI elements based on the JSON array. */
 function renderUI(uiJsonArray) {
     console.log("renderUI started.");
-    hiddenAnalysisContent = null; // Reset hidden content before rendering new UI
     const initialMsgElementRef = document.getElementById('initial-message');
     uiContainer.innerHTML = '';
     if (!Array.isArray(uiJsonArray)) {
@@ -463,25 +455,6 @@ function renderUI(uiJsonArray) {
 
 /** Renders a single UI element. */
 function renderSingleElement(element, index) {
-    // --- MODIFICATION START: Check for gemini_facing_analysis ---
-    // If it's the gemini_facing_analysis text element, store its content and skip rendering.
-    if (element.type === 'text' && element.name?.includes('gemini_facing_analysis')) {
-        hiddenAnalysisContent = element.text || element.value || '';
-        console.log("Stored hidden 'gemini_facing_analysis' content.");
-        return; // Do not render this element to the main UI
-    }
-    if (element.name?.includes('tweet')) {
-        hiddenAnalysisContentTweet = element.text || element.value || '';
-        console.log("Stored hidden 'tweet' content.");
-        return; // Do not render this element to the main UI
-    }
-    if (element.name?.includes('notes')) {
-        hiddenAnalysisContentNotes = element.value || '';
-        console.log("Stored hidden 'gemini_facing_analysis' content.");
-        return; // Do not render this element to the main UI
-    }
-    // --- MODIFICATION END ---
-
     const wrapper = document.createElement('div');
     wrapper.className = 'geems-element';
     if (element.voice) wrapper.classList.add(`voice-${element.voice}`);
@@ -500,7 +473,7 @@ function renderSingleElement(element, index) {
                 break;
             case 'text':
                 renderText(wrapper, element, adjustedColor);
-                break; // Will be skipped for gemini_facing_analysis by the check above
+                break;
             case 'textfield':
                 renderTextField(wrapper, element, adjustedColor);
                 break;
@@ -514,7 +487,10 @@ function renderSingleElement(element, index) {
                 renderRadio(wrapper, element, adjustedColor);
                 break;
             case 'hidden':
-                if (element.name === 'notes') currentNotes = element.value || null; else if (element.name === 'subjectId') currentSubjectId = element.value || "";
+                if (element.name === 'notes') {
+                    currentNotes = element.value || null;
+                }
+                // The 'subjectId' is no longer used in the new design.
                 return;
             default:
                 console.warn("Unknown element type:", element.type, element);
@@ -564,7 +540,7 @@ function renderImage(wrapper, element, adjustedColor) {
 
 function renderText(wrapper, element, adjustedColor) {
     const textContent = element.text || element.value || '';
-    const useLabel = element.label && !['narrative', 'divine_wisdom', 'player_facing_analysis'].some(namePart => element.name?.includes(namePart)); /* Removed gemini_facing_analysis from here as it's handled earlier */
+    const useLabel = element.label && !['narrative', 'game_master_snark'].some(namePart => element.name?.includes(namePart));
     if (useLabel) {
         const label = document.createElement('label');
         label.className = 'geems-label';
@@ -887,38 +863,7 @@ function setDynamicImages() {
     }
 }
 
-// --- Modal Functions ---
-/** Displays the modal with the hidden analysis content. */
-function showAnalysisModal() {
-    // Check if modal elements exist
-    if (!analysisModal || !analysisModalBody) {
-        console.error("Analysis modal elements not found in the DOM.");
-        showError("Cannot display analysis: Modal elements missing.");
-        return;
-    }
-
-    if (hiddenAnalysisContent) {
-        // Basic HTML rendering (similar to renderText)
-        analysisModalBody.innerHTML = (hiddenAnalysisContentTweet + "\n\n" + hiddenAnalysisContent + "\n\nSystem notes: " + hiddenAnalysisContentNotes)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
-            .replace(/\*(.*?)\*/g, '<em>$1</em>')       // Italics
-            .replace(/```([\s\S]*?)```/g, (match, p1) => `<pre>${p1.trim()}</pre>`) // Code blocks
-            .replace(/\n/g, '<br>'); // Newlines
-    } else {
-        analysisModalBody.innerHTML = '<p>No analysis content available for this turn.</p>';
-    }
-    analysisModal.style.display = 'block'; // Or 'flex', depending on your CSS
-}
-
-/** Hides the analysis modal. */
-function hideAnalysisModal() {
-    if (analysisModal) {
-        analysisModal.style.display = 'none';
-    }
-}
+// Modal functions removed as they are no longer needed.
 
 // --- Multiplayer Functions ---
 
@@ -1266,9 +1211,6 @@ function handleConnectedToHost(hostId) {
 
 
 // --- Event Listeners ---
-    h1.addEventListener('click', () => {
-        showAnalysisModal()
-    })
 
 
 // Modify the original click listener
@@ -1320,7 +1262,6 @@ resetGameButton.addEventListener('click', () => {
         currentSubjectId = "";
         currentModelIndex = 0;
         apiKeyLocked = false;
-        hiddenAnalysisContent = null; // Clear analysis content
         localStorage.removeItem(LOCAL_STORAGE_KEY);
         console.log("Cleared localStorage.");
         uiContainer.innerHTML = '';
@@ -1352,19 +1293,7 @@ resetGameButton.addEventListener('click', () => {
     }
 });
 
-// Add listener for the modal close button (if it exists)
-if (analysisModalClose) {
-    analysisModalClose.addEventListener('click', hideAnalysisModal);
-}
-// Optional: Close modal if clicking outside the content area
-if (analysisModal) {
-    analysisModal.addEventListener('click', (event) => {
-        // Check if the click was directly on the modal background, not the content area
-        if (event.target === analysisModal) {
-            hideAnalysisModal();
-        }
-    });
-}
+// Modal event listeners removed as they are no longer needed.
 
 
 // --- Initial Game Setup ---
@@ -1427,7 +1356,6 @@ function initializeGame() {
                 isMasturbationMode = false;
                 historyQueue = [];
                 currentUiJson = null;
-                hiddenAnalysisContent = null;
                 if (apiKeySection) apiKeySection.style.display = 'none';
                 const msg = document.getElementById('initial-message') || createInitialMessage();
                 msg.style.display = 'none';
@@ -1455,7 +1383,6 @@ function initializeGame() {
         isMasturbationMode = false;
         currentModelIndex = 0;
         apiKeyLocked = false;
-        hiddenAnalysisContent = null;
         uiContainer.innerHTML = '';
         const initialMsg = document.getElementById('initial-message') || createInitialMessage();
         initialMsg.style.display = 'block';
