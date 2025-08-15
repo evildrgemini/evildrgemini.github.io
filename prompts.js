@@ -282,8 +282,8 @@ export const geemsPrompts = {
         "color": "#FFFFFF",
         "voice": "system"
     }
-]
-*/
+]`
+
 };
 
 export const multiplayerDatePrompt = `
@@ -366,6 +366,5 @@ export const multiplayerDatePrompt = `
         "voice": "subject"
     }
 ]
-*/
-`
-};
+
+`;
