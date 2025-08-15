@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GUIDED EXTREME EMOTIONAL MENTAL STATES</title>
+    <title>Echidna's Embrace</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,110 +11,116 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Playfair+Display:wght@700&display=swap"
           rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@latest/font/Lucide.css">
-    <link rel="stylesheet" href="styles.css"> <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script type="module">
         // Firebase Initialization
         import {initializeApp} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
         import {getAnalytics} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
-        // TODO: Add SDKs for Firebase products that you want to use
-        // https://firebase.google.com/docs/web/setup#available-libraries
-
-        // Your web app's Firebase configuration
-        // IMPORTANT: Replace with your actual Firebase config.
         const firebaseConfig = {
             apiKey: "AIzaSyCl32VbjykZX-k3TNEZrXbZ4IWRSKweq3E", // Note: Use environment variables or secure methods in production
             authDomain: "geems-60187.firebaseapp.com",
             projectId: "geems-60187",
-            storageBucket: "geems-60187.appspot.com", // Corrected domain usually ends in .appspot.com
+            storageBucket: "geems-60187.appspot.com",
             messagingSenderId: "353260647182",
             appId: "1:353260647182:web:6f44d9c68fe379534f5d5f",
-            measurementId: "G-4SB7BD55RY" // Optional
+            measurementId: "G-4SB7BD55RY"
         };
-
-        // Initialize Firebase
         try {
             const app = initializeApp(firebaseConfig);
             const analytics = getAnalytics(app);
             console.log("Firebase Initialized.");
         } catch(e) {
-            console.error("Firebase Initialization Failed. Ensure config is correct and services are enabled.", e);
-            // Optionally display an error to the user
-            const errorDisplayElement = document.getElementById('error-display');
-            if (errorDisplayElement) { // Check if error display exists yet
-                errorDisplayElement.textContent = "Error connecting to backend services.";
-                errorDisplayElement.style.display = 'block';
-            }
+            console.error("Firebase Initialization Failed.", e);
         }
     </script>
 </head>
-<body class="bg-gray-100 font-inter"> <header class="site-header">
-    <img id="headerBanner" alt="GEEMS Header Banner" class="header-banner-image">
-    <h1>Guided Extreme Emotional Mental States</h1>
-</header>
+<body class="bg-gray-900 text-white font-inter">
+    <header class="site-header text-center py-4">
+        <h1 class="text-4xl font-playfair-display">Echidna's Embrace</h1>
+        <nav class="mt-2">
+            <button id="nav-lobby" class="geems-button">Lobby</button>
+            <button id="nav-date" class="geems-button">Date</button>
+            <button id="nav-history" class="geems-button">History</button>
+        </nav>
+    </header>
 
-<div class="max-w-3xl mx-auto px-4 md:px-8 py-8"> <div id="apiKeySection" class="mb-6 p-4 bg-white rounded shadow"> <label for="apiKeyInput" class="geems-label api-key-instructions">
-    Enter Google AI API Key to Start:
-    <span class="block text-sm font-normal text-gray-600 mt-1">
-                (Need a key? Get one from Google AI Studio:
-                <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">
-                    aistudio.google.com/apikey
-                </a>)
-                <br>Or provide via URL parameter: ?apiKey=YOUR_API_KEY
-            </span>
-</label>
-    <input type="password" id="apiKeyInput" class="geems-input" placeholder="Paste your secure API key here">
-</div>
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <section id="lobby" class="active bg-gray-800 p-6 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-bold mb-4">Multiplayer Lobby</h2>
+            <div id="chat-box" class="h-64 overflow-y-auto border border-gray-700 p-4 rounded mb-4">
+                <!-- Chat messages will appear here -->
+            </div>
+            <div class="flex">
+                <input type="text" id="chat-input" class="geems-input flex-grow" placeholder="Whisper your thoughts...">
+                <button id="send-chat" class="geems-button ml-2">Send</button>
+            </div>
+             <div id="peer-list" class="peer-list-container mt-4">
+                <h3 class="text-xl font-bold mb-2">Souls Online</h3>
+                <!-- Peer list will be populated here -->
+            </div>
+            <div id="date-controls" class="mt-6 text-center border-t border-gray-700 pt-4">
+                <button id="start-solo-date" class="geems-button">Go on a Solo Date</button>
+                <button id="find-multiplayer-date" class="geems-button ml-2">Find a Partner</button>
+            </div>
+        </section>
 
-    <div id="game-container" class="bg-white p-4 md:p-6 rounded-lg shadow-lg"> <div id="ui-elements">
-        <div id="initial-message" class="text-center text-gray-500 p-6">
-            Enter your API Key above (or provide in URL) and click "Submit Turn" to start.
+        <section id="multiplayer-date" class="hidden bg-gray-800 p-6 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-bold mb-4">Multiplayer Date</h2>
+            <div id="multiplayer-gameplay-area" class="border border-gray-700 p-4 rounded h-96 overflow-y-auto">
+                <p>Date started. The Date Master will guide you.</p>
+            </div>
+            <div class="mt-4" id="multiplayer-input-area">
+                <!-- Player choices will be rendered here -->
+                <div class="text-center text-gray-400">Waiting for your turn...</div>
+            </div>
+        </section>
+
+        <section id="date" class="hidden bg-gray-800 p-6 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-bold mb-4">Virtual Date</h2>
+            <div id="succubus-persona" class="text-center mb-4">
+                <h3 class="text-3xl font-playfair-display">Your Date with Lilith</h3>
+                <p class="text-lg italic text-purple-300">She seems to understand you... a little too well.</p>
+            </div>
+            <div id="gameplay-area" class="border border-gray-700 p-4 rounded h-96">
+                <p>The date unfolds...</p>
+                <!-- The core gameplay from the original app will be integrated here -->
+            </div>
+             <div class="mt-4 text-center">
+                <button id="submit-turn" class="geems-button">Submit Turn</button>
+            </div>
+        </section>
+
+        <section id="history" class="hidden bg-gray-800 p-6 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-bold mb-4">Session History & Analysis</h2>
+            <div id="player-summary-container" class="mb-6 p-4 bg-gray-900 rounded-lg">
+                <h3 class="text-xl font-bold mb-2 text-purple-300">Psycho-Sexual Summary</h3>
+                <div id="player-summary-content" class="text-md italic text-gray-300">
+                    <p>No summary generated yet. Complete a date and click the button below.</p>
+                </div>
+                <div class="mt-4">
+                     <button id="generate-summary" class="geems-button">Generate Full Summary</button>
+                     <button id="share-summary" class="geems-button ml-2">Share Summary</button>
+                </div>
+            </div>
+            <div id="history-container" class="space-y-4">
+                <!-- History items will be dynamically inserted here -->
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer text-center py-4 mt-8">
+        <div class="footer-content">
+            <span>Copyright &copy; 2025 Echidna's Embrace. All rights reserved.</span>
         </div>
-    </div>
-
-        <div id="loading" class="loading-indicator" style="display: none;">
-            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none"
-                 viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            Generating next turn... Please wait.
+        <div class="footer-buttons mt-4">
+            <button id="debug-mode-toggle" class="geems-button">Debug Mode: OFF</button>
         </div>
+    </footer>
 
-        <div class="mt-8 text-center">
-            <button id="submit-turn" class="geems-button" disabled>
-                Submit Turn
-            </button>
-        </div>
-    </div>
-</div> <div id="analysisModal" class="modal" style="display: none;"> <div class="modal-content">
-    <span id="analysisModalClose" class="modal-close" title="Close">&times;</span>
-    <h2 class="text-xl font-semibold mb-4">Top Secret!</h2> <div id="analysisModalBody" class="geems-text" style="max-height: 60vh; overflow-y: auto; margin-top: 1rem;">
-    <p>Loading analysis...</p> </div>
-</div>
-</div>
-
-<footer class="site-footer">
-
-    <div id="peer-list" class="peer-list-container">
-    </div>
-    <div class="footer-buttons">
-        <button id="modeToggleButton" class="geems-button standard-mode">Mode: Standard</button>
-        <button id="resetGameButton" class="geems-button" disabled>Reset Game</button>
-    </div>
-    <div id="clipboardMessage" class="text-center h-5"></div>
-    <div id="error-display" class="error-message" ></div>
-    <img id="footerBanner" alt="GEEMS Footer Banner" class="footer-banner-image">
-    <div class="footer-content">
-    <span>Copyright &copy; 2025 EvilDrGemini v1.1.1.4g. All rights reserved.<br>click on banner for top secret analysis.</span>
-
-    </div>
-</footer>
-
-<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-<script type="module" src="prompts.js"></script>
-<script type="module" src="mp.js"></script>
-<script type="module" src="script.js"></script>
-
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script type="module" src="prompts.js"></script>
+    <script type="module" src="mp.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
