@@ -68,6 +68,24 @@ const longPressDuration = 750; // milliseconds
 
 // --- Helper Functions ---
 
+const EMBEDDED_ENCRYPTED_KEY = "IiYUEjYXNxIwAxo9BwYmHDY1PBQ2GzgeBjceMAgIGEosKUIZLDsi";
+
+/** Decrypts the embedded API key. */
+function decryptEmbeddedKey(encrypted, pass) {
+    try {
+        const decoded = atob(encrypted);
+        let result = "";
+        for (let i = 0; i < decoded.length; i++) {
+            const charCode = decoded.charCodeAt(i) ^ pass.charCodeAt(i % pass.length);
+            result += String.fromCharCode(charCode);
+        }
+        return result;
+    } catch (e) {
+        console.error("Error decrypting embedded key:", e);
+        return "";
+    }
+}
+
 /** Encodes a string using Base64. */
 function encodeApiKey(key) {
     try {
@@ -302,7 +320,29 @@ async function fetchTurnData(playerActionsJson) {
     updateHistoryQueue(playerActionsJson); // Update history. Clear flag upon successful response from Gemini.
     console.log("fetchTurnData called.");
     initAudioContext();
-    const apiKey = apiKeyInput.value.trim();
+    initAudioContext();
+    let apiKey = apiKeyInput.value.trim();
+
+    // --- MODIFICATION: Check for passphrase ---
+    // If not a standard Google API key (doesn't start with AIza), try to use it as a passphrase
+    if (apiKey && !apiKey.startsWith("AIza")) {
+        console.log("Input does not look like an API key. Attempting to decrypt embedded key with input as passphrase...");
+        const decrypted = decryptEmbeddedKey(EMBEDDED_ENCRYPTED_KEY, apiKey);
+        // Simple heuristic: legitimate key should start with AIza
+        if (decrypted && decrypted.startsWith("AIza")) {
+            console.log("Passphrase accepted! Using decrypted API key.");
+            apiKey = decrypted;
+            // Optionally update the UI to show the real key or keep the passphrase hidden?
+            // Let's update it to the real key so the user knows it worked, or maybe just use it internally.
+            // Using it internally is safer for streaming but updating UI confirms success.
+            apiKeyInput.value = apiKey;
+        } else {
+            console.warn("Decryption failed or invalid result.");
+            // Proceed with raw input, will likely fail but that's correct behavior
+        }
+    }
+    // --- MODIFICATION END ---
+
     if (!apiKey) {
         showError("Please enter API Key");
         setLoading(false);
@@ -1448,9 +1488,11 @@ function initializeGame() {
         } catch (e) {
             console.error("Error processing URL params:", e);
             showError("Error reading URL params. Start manually.");
-            autoStarted = false;
         }
     }
+
+
+
     if (!autoStarted) {
         console.log("Manual start.");
         historyQueue = [];
@@ -1464,7 +1506,7 @@ function initializeGame() {
         initialMsg.style.display = 'block';
         initialMsg.innerHTML = 'Enter API Key';
         if (apiKeySection) apiKeySection.style.display = 'block';
-        apiKeyInput.value = '';
+        if (!apiKeyInput.value.trim()) apiKeyInput.value = '';
         setLoading(false);
         hideError();
         updateModeButtonVisuals();
@@ -1474,24 +1516,22 @@ function initializeGame() {
     // --- Initialize Multiplayer AFTER initial setup ---
     if (typeof MPLib !== 'undefined' && typeof MPLib.initialize === 'function') {
         console.log("Initializing Multiplayer Library...");
-        addPeerIconStyles(); // Add styles if not already present
-        // Create peer list container in the footer
+        addPeerIconStyles();
         if (footerElement && !peerListContainer) {
             peerListContainer = document.createElement('div');
             peerListContainer.id = 'peer-list';
-            peerListContainer.className = 'peer-list-container'; // Add class for styling
-            // Insert before the copyright/content div in the footer
+            peerListContainer.className = 'peer-list-container';
             const footerContent = footerElement.querySelector('.footer-content');
             if (footerContent) {
                 footerElement.insertBefore(peerListContainer, footerContent);
             } else {
-                footerElement.appendChild(peerListContainer); // Fallback append
+                footerElement.appendChild(peerListContainer);
             }
         }
 
         MPLib.initialize({
-            targetHostId: DEFAULT_HOST_ID, // Use the defined host ID
-            debugLevel: 1, // Set desired debug level
+            targetHostId: DEFAULT_HOST_ID,
+            debugLevel: 1,
             onStatusUpdate: handleStatusUpdate,
             onError: handleError,
             onPeerJoined: handlePeerJoined,
@@ -1499,26 +1539,15 @@ function initializeGame() {
             onDataReceived: handleDataReceived,
             onConnectedToHost: handleConnectedToHost,
             onBecameHost: handleBecameHost,
-            getInitialSyncData: () => apiKeyLocked ? getCurrentGameState() : null, // Only provide sync data if game started
-            onInitialSync: (syncData) => { // Handle receiving sync data when joining
+            getInitialSyncData: () => apiKeyLocked ? getCurrentGameState() : null,
+            onInitialSync: (syncData) => {
                 if (syncData) {
                     console.log("Received initial sync data from host.");
-                    // Check if we haven't already started a local game
                     if (!apiKeyLocked && !currentUiJson) {
                         console.log("Applying initial sync data to start game.");
-                        // We need the API key to continue! Sync data doesn't contain it.
-                        // This approach needs refinement. Maybe sync only happens *after* local API key entered?
-                        // Or the host needs to trigger a state send *after* client confirms API key?
-                        // For now, let's just log it. A robust sync needs more thought.
-                        // loadGameState(syncData, MPLib.getHostPeerId()); // Load the state
-                        // apiKeyLocked = true; // Assume sync means game is running? Risky without key.
-                        // apiKeySection.style.display = 'none';
                         showNotification("Received initial state from host. Enter *your* API key to participate fully.", "info", 6000);
-                        // The user still needs their own key to *send* turns.
-                        // Viewing host state might be possible without a local key if designed that way.
                     } else {
                         console.log("Already have local game state, ignoring initial sync data for now.");
-                        // Maybe offer to switch to host state?
                     }
                 } else {
                     console.log("Connected to host, but no initial sync data received (host game might not have started).");
@@ -1528,7 +1557,6 @@ function initializeGame() {
     } else {
         console.warn("MPLib not found or initialize function missing.");
     }
-
 }
 
 function createInitialMessage() {
