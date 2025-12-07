@@ -1,5 +1,5 @@
 // Import prompts from the separate file (if still needed for single-player)
-import {geemsPrompts} from './prompts.js';
+import { geemsPrompts } from './prompts.js';
 import MPLib from './mp.js';
 // Assuming MPLib is globally available after including mp.js or imported if using modules
 // import MPLib from './mp.js'; // Uncomment if using ES6 modules for MPLib
@@ -21,13 +21,12 @@ let hiddenAnalysisContentNotes = null; // To store content of gemini_facing_anal
 // --- Model Switching State ---
 const AVAILABLE_MODELS = [
     "gemini-3-pro-preview",
-    "gemini-2.5-flash-preview-05-20",
-    "gemini-2.5-pro-exp-03-25",
-    "gemini-2.5-flash-preview-04-17",
-    "gemini-2.0-pro-exp-02-05",
-    "gemini-1.5-pro",
-    "gemini-2.0-flash-exp",
-    "gemini-exp-1206"];
+    "gemini-2.5-flash",
+    "gemini-2.5-pro",
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
+    "gemini-1.5-pro"
+];
 let currentModelIndex = 0;
 
 // --- Configuration ---
@@ -177,7 +176,7 @@ function playTurnAlertSound() {
 /** Updates the history queue. */
 function updateHistoryQueue(playerActionsJson) {
     if (currentUiJson) {
-        const previousTurnData = {ui: JSON.stringify(currentUiJson), actions: playerActionsJson || "{}"};
+        const previousTurnData = { ui: JSON.stringify(currentUiJson), actions: playerActionsJson || "{}" };
         const isDuplicate = historyQueue.some(item => JSON.stringify(item) === JSON.stringify(previousTurnData));
         if (isDuplicate) {
             console.log("Duplicate turn data detected, not adding to history queue.");
@@ -338,13 +337,17 @@ async function fetchTurnData(playerActionsJson) {
             console.error(`Error with model ${currentModel} (Attempt ${attempts}):`, error);
             currentAttemptConsecutiveErrors++;
             const isQuotaError = error.message.includes('429') || /quota exceeded|resource.*exhausted/i.test(error.message);
-            const shouldSwitch = isQuotaError || currentAttemptConsecutiveErrors >= 2;
+            const isNotFoundError = error.message.includes('404') || /not found/i.test(error.message);
+            const shouldSwitch = isQuotaError || isNotFoundError || currentAttemptConsecutiveErrors >= 2;
+
             if (shouldSwitch && AVAILABLE_MODELS.length > 1) {
                 const oldModel = AVAILABLE_MODELS[currentModelIndex];
                 currentModelIndex = (currentModelIndex + 1) % AVAILABLE_MODELS.length;
                 const newModel = AVAILABLE_MODELS[currentModelIndex];
-                console.warn(`Switching model from ${oldModel} to ${newModel} due to ${isQuotaError ? 'quota/resource error' : '2 errors'}.`);
-                showError(`Experiencing issues with ${oldModel}. Trying ${newModel}... (Attempt ${attempts + 1})`);
+                const reason = isQuotaError ? 'quota/resource error' : (isNotFoundError ? 'model not found' : 'multiple errors');
+
+                console.warn(`Switching model from ${oldModel} to ${newModel} due to ${reason}.`);
+                showError(`Issue with ${oldModel} (${reason}). Switching to ${newModel}... (Attempt ${attempts + 1})`);
                 currentAttemptConsecutiveErrors = 0;
             } else if (attempts < maxAttempts) {
                 showError(`Temporary issue with ${currentModel}. Retrying... (Attempt ${attempts + 1})`);
@@ -357,7 +360,7 @@ async function fetchTurnData(playerActionsJson) {
         showError(`Failed to get response after ${maxAttempts} attempts. Check API key, network, or try later.`);
     } else {
         hideError();
-        window.scrollTo({top: 0, behavior: 'smooth'});
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     setLoading(false);
 }
@@ -366,8 +369,8 @@ async function fetchTurnData(playerActionsJson) {
 async function callRealGeminiAPI(apiKey, promptText, modelName) {
     const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
     const requestBody = {
-        contents: [{parts: [{text: promptText}]}],
-        generationConfig: {temperature: 1.0, response_mime_type: "application/json"},
+        contents: [{ parts: [{ text: promptText }] }],
+        generationConfig: { temperature: 1.0, response_mime_type: "application/json" },
         safetySettings: [{
             "category": "HARM_CATEGORY_HARASSMENT",
             "threshold": "BLOCK_NONE"
@@ -377,11 +380,11 @@ async function callRealGeminiAPI(apiKey, promptText, modelName) {
         }, {
             "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
             "threshold": "BLOCK_NONE"
-        }, {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"}]
+        }, { "category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE" }]
     };
     const response = await fetch(API_URL, {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody)
     });
     if (!response.ok) {
@@ -676,7 +679,7 @@ function renderRadio(wrapper, element, adjustedColor) {
             try {
                 optionsSource = JSON.parse(optionsSource);
             } catch (e) {
-                optionsSource = [{label: optionsSource, value: optionsSource}];
+                optionsSource = [{ label: optionsSource, value: optionsSource }];
             }
         }
         if (Array.isArray(optionsSource)) {
@@ -700,7 +703,7 @@ function renderRadio(wrapper, element, adjustedColor) {
                         isDefault = true;
                     }
                 }
-                return {value: currentValue, label: currentLabel, isDefault: isDefault};
+                return { value: currentValue, label: currentLabel, isDefault: isDefault };
             }).filter(opt => opt !== null);
             if (defaultValue === null && element.value && typeof element.value === 'string') {
                 let isValueSimpleString = true;
@@ -971,7 +974,7 @@ function updatePeerListUI() {
                     console.log(`Clicked remote peer icon: ${peerId.slice(-6)}`);
                     // Request game state from this peer
                     console.log(`Requesting game state from ${peerId.slice(-6)}...`);
-                    MPLib.sendDirect(peerId, {type: 'request_game_state'});
+                    MPLib.sendDirect(peerId, { type: 'request_game_state' });
                     showNotification(`Requesting state from ${peerId.slice(-6)}...`, 'info', 2000);
                     // Highlight this peer (will be updated fully when state arrives)
                     highlightPeerIcon(peerId); // Indicate attempt to view
@@ -1185,12 +1188,12 @@ function handleDataReceived(senderId, data) {
             // Only send state if the game has started (API key locked)
             if (apiKeyLocked && currentUiJson) {
                 const currentState = getCurrentGameState();
-                MPLib.sendDirect(senderId, {type: 'game_state', payload: currentState});
+                MPLib.sendDirect(senderId, { type: 'game_state', payload: currentState });
                 console.log(`Sent current game state back to ${senderId.slice(-6)}`);
             } else {
                 console.log(`Game not started or no UI yet, cannot send state to ${senderId.slice(-6)}.`);
                 // Optionally send a message indicating game not ready
-                MPLib.sendDirect(senderId, {type: 'game_state_not_ready'});
+                MPLib.sendDirect(senderId, { type: 'game_state_not_ready' });
             }
             break;
         case 'game_state':
@@ -1266,9 +1269,9 @@ function handleConnectedToHost(hostId) {
 
 
 // --- Event Listeners ---
-    h1.addEventListener('click', () => {
-        showAnalysisModal()
-    })
+h1.addEventListener('click', () => {
+    showAnalysisModal()
+})
 
 
 // Modify the original click listener
