@@ -10,7 +10,7 @@ const MAX_HISTORY_SIZE = 20;
 let currentUiJson = null;
 let currentNotes = {};
 let currentSubjectId = "";
-let isMasturbationMode = false; // Default mode
+let isExplicitMode = false; // Default mode
 let isLoading = false;
 let apiKeyLocked = false;
 let localGameStateSnapshot = null; // To store local state when viewing remote state
@@ -106,9 +106,9 @@ function decodeApiKey(encodedKey) {
     }
 }
 /** Constructs the full prompt for the Gemini API call. */
-function constructPrompt(playerActionsJson, historyQueue, isMasturbationMode) {
+function constructPrompt(playerActionsJson, historyQueue, isExplicitMode) {
     const baseMainPrompt = geemsPrompts.main;
-    const activeAddendum = isMasturbationMode ? `\n\n---\n${geemsPrompts.masturbationModeAddendum}\n---\n` : "";
+    const activeAddendum = isExplicitMode ? `\n\n---\n${geemsPrompts.explicitModeAddendum}\n---\n` : "";
     if (historyQueue.length === 0) {
         const s = `${geemsPrompts.firstrun}\n\n---\n${baseMainPrompt}${activeAddendum}\n---\n${geemsPrompts.exampleTurn}\n---\n\n--- Generate JSON UI for Turn 1 ---`;
         console.log("Generated T1 Prompt Snippet:", s.substring(0, 200) + "...");
@@ -132,7 +132,7 @@ function autoSaveGameState() {
             encodedApiKey: encodeApiKey(rawApiKey),
             currentUiJson: currentUiJson,
             historyQueue: historyQueue,
-            isMasturbationMode: isMasturbationMode,
+            isExplicitMode: isExplicitMode,
             currentModelIndex: currentModelIndex
         };
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(stateToSave));
@@ -365,7 +365,7 @@ async function fetchTurnData(playerActionsJson) {
         const currentModel = AVAILABLE_MODELS[currentModelIndex];
         console.log(`Attempt ${attempts}/${maxAttempts}: Trying model ${currentModel}`);
         try {
-            const fullPrompt = constructPrompt(playerActionsJson, historyQueue, isMasturbationMode);
+            const fullPrompt = constructPrompt(playerActionsJson, historyQueue, isExplicitMode);
             console.log(`Sending Prompt to ${currentModel}`);
             const jsonStringResponse = await callRealGeminiAPI(apiKey, fullPrompt, currentModel);
             const responseJson = JSON.parse(jsonStringResponse);
@@ -907,7 +907,7 @@ function showClipboardMessage(message, isError = false) {
 }
 
 function updateModeButtonVisuals() {
-    if (isMasturbationMode) {
+    if (isExplicitMode) {
         modeToggleButton.textContent = 'Mode: Explicit';
         modeToggleButton.classList.remove('standard-mode');
     } else {
@@ -1347,8 +1347,8 @@ apiKeyInput.addEventListener('input', () => {
 
 modeToggleButton.addEventListener('click', () => {
     if (isLoading) return;
-    isMasturbationMode = !isMasturbationMode;
-    console.log(`Mode Toggled: ${isMasturbationMode ? 'Explicit' : 'Standard'}`);
+    isExplicitMode = !isExplicitMode;
+    console.log(`Mode Toggled: ${isExplicitMode ? 'Explicit' : 'Standard'}`);
     updateModeButtonVisuals();
     autoSaveGameState();
 });
@@ -1425,7 +1425,7 @@ function initializeGame() {
             apiKeyInput.value = decodedApiKey;
             historyQueue = savedState.historyQueue || [];
             currentUiJson = savedState.currentUiJson || null;
-            isMasturbationMode = savedState.isMasturbationMode === true;
+            isExplicitMode = savedState.isExplicitMode === true || savedState.isMasturbationMode === true;
             currentModelIndex = savedState.currentModelIndex || 0;
             apiKeyLocked = true;
             autoStarted = true;
@@ -1444,7 +1444,7 @@ function initializeGame() {
             localStorage.removeItem(LOCAL_STORAGE_KEY);
             historyQueue = [];
             currentUiJson = null;
-            isMasturbationMode = false;
+            isExplicitMode = false;
             currentModelIndex = 0;
             apiKeyLocked = false;
             autoStarted = false;
@@ -1467,7 +1467,7 @@ function initializeGame() {
                 apiKeyInput.value = keyFromUrlParam;
                 apiKeyLocked = false;
                 currentModelIndex = 0;
-                isMasturbationMode = false;
+                isExplicitMode = false;
                 historyQueue = [];
                 currentUiJson = null;
                 hiddenAnalysisContent = null;
@@ -1497,7 +1497,7 @@ function initializeGame() {
         console.log("Manual start.");
         historyQueue = [];
         currentUiJson = null;
-        isMasturbationMode = false;
+        isExplicitMode = false;
         currentModelIndex = 0;
         apiKeyLocked = false;
         hiddenAnalysisContent = null;
