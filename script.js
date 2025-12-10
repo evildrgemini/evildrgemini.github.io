@@ -914,6 +914,8 @@ function updateModeButtonVisuals() {
         modeToggleButton.textContent = 'Mode: Standard';
         modeToggleButton.classList.add('standard-mode');
     }
+    // Add the requested line here, as this function is responsible for updating the button's visuals
+    document.body.classList.toggle('explicit-mode', isExplicitMode);
 }
 
 function setDynamicImages() {

@@ -1,612 +1,383 @@
 /* Base body styling */
+:root {
+    /* False Security Palette (Warm/Inviting) */
+    --bg-primary: #FFFbeb; /* Amber 50 */
+    --bg-secondary: #ffffff;
+    --text-primary: #4b5563; /* Gray 600 - softer than black */
+    --text-heading: #0d9488; /* Teal 600 */
+    --accent-primary: #14b8a6; /* Teal 500 */
+    --accent-secondary: #bef264; /* Lime 300 */
+    --accent-tertiary: #f472b6; /* Pink 400 (for subtle warnings) */
+    --card-shadow: 0 10px 25px -5px rgba(20, 184, 166, 0.15), 0 8px 10px -6px rgba(20, 184, 166, 0.1);
+    --font-heading: 'Fredoka One', cursive;
+    --font-body: 'Quicksand', sans-serif;
+    --radius-round: 20px;
+}
+
+/* Explicit Mode Palette (Hyper-Pop / Dopamine) */
+body.explicit-mode {
+    --bg-primary: #fdf2f8; /* Pink 50 */
+    --text-primary: #db2777; /* Pink 600 */
+    --text-heading: #db2777;
+    --accent-primary: #ff00ff; /* Magenta */
+    --accent-secondary: #00ffff; /* Cyan */
+    --card-shadow: 5px 5px 0px 0px rgba(255, 0, 255, 0.2); /* Pop art shadow */
+}
+
 body {
-    font-family: 'Inter', sans-serif;
-    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-    color: #1f2937;
+    font-family: var(--font-body);
+    background: radial-gradient(circle at 50% 50%, var(--bg-primary), #fff);
+    color: var(--text-primary);
     margin: 0;
     padding: 0;
+    transition: background 0.5s ease;
+    min-height: 100vh;
 }
 
 /* Header Styling */
 .site-header {
-    padding: 0;
-    margin-bottom: 2rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-}
-
-.header-banner-image {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    display: block;
+    /* Handled by Tailwind classes in HTML, but ensuring overrides */
+    font-family: var(--font-heading);
 }
 
 .site-header h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 3rem;
-    color: white;
-    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
-    margin: 0;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100%;
-    padding: 0 1rem;
-    box-sizing: border-box;
-    background: rgba(0, 0, 0, 0.4);
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
+    font-family: var(--font-heading);
+    letter-spacing: 0.5px;
 }
-
 
 /* Footer Styling */
 .site-footer {
-    margin-top: 3rem;
-    padding: 0;
+    margin-top: 4rem;
+    padding: 2rem 0;
     text-align: center;
-    font-size: 0.875rem;
-    color: #6b7280;
-    border-top: 1px solid #d1d5db;
+    font-size: 0.9rem;
+    color: #9ca3af;
+    border-top: none;
+    background: linear-gradient(to top, rgba(255,255,255,0.8), transparent);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1.5rem;
-    overflow: hidden;
+    gap: 1rem;
 }
 
 .footer-banner-image {
-    width: 100%;
-    height: 100px;
-    object-fit: cover;
-    display: block;
-    margin-bottom: 1.5rem;
+    display: none; /* Removing the ominous banner */
 }
 
 .footer-buttons {
     display: flex;
     gap: 1rem;
-    flex-wrap: wrap;
     justify-content: center;
 }
 
-#modeToggleButton, #resetGameButton { /* Added reset button */
+#modeToggleButton, #resetGameButton {
     margin-top: 0;
 }
 
-.footer-content { /* Copyright section */
+.footer-content {
     display: flex;
     align-items: center;
-    justify-content: center; /* Center footer content */
-    gap: 0.75rem;
-    margin-top: 0;
-    padding-bottom: 1.5rem;
-}
-
-.footer-copyright-image { /* Specific class for the small icon */
-    height: 30px; /* Adjusted size */
-    width: 30px; /* Adjusted size */
-    border-radius: 0.375rem;
-    object-fit: cover;
+    justify-content: center;
+    gap: 0.5rem;
+    padding-bottom: 2rem;
+    font-weight: 500;
 }
 
 #clipboardMessage {
-    font-size: 0.8rem;
-    color: #16a34a;
-    height: 1.2em;
-    margin-top: -0.5rem;
-    margin-bottom: 1rem;
-    font-weight: 500;
-    padding: 0 1rem;
+    color: var(--accent-primary);
+    font-weight: 600;
 }
-
 
 /* Custom styles for GEEMS UI elements */
 .geems-element {
     margin-bottom: 1.5rem;
-    padding: 1.25rem;
-    background-color: white !important;
-    color: #1f2937 !important;
-    border-radius: 0.75rem;
-    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.08), 0 2px 6px 0 rgba(0, 0, 0, 0.05);
-    border-left: 5px solid transparent;
-    position: relative;
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, border-color 0.3s ease;
+    padding: 1.5rem;
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+    border-radius: var(--radius-round);
+    box-shadow: var(--card-shadow);
+    border: 1px solid rgba(0,0,0,0.05);
+    border-left: 6px solid transparent; /* Keep for accent color */
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); /* Bouncy transition */
+}
+
+/* Explicit Mode Card Style Override */
+body.explicit-mode .geems-element {
+    border: 2px solid #ff00ff;
+    box-shadow: 8px 8px 0px #00ffff;
+    border-radius: 12px;
 }
 
 .geems-element:hover {
-    box-shadow: 0 8px 15px 0 rgba(0, 0, 0, 0.1), 0 4px 8px 0 rgba(0, 0, 0, 0.07);
+    transform: translateY(-3px) scale(1.01);
 }
 
 .geems-label {
     display: block;
-    margin-bottom: 0.6rem;
-    font-weight: 600;
-    color: #4f46e5;
-    font-size: 0.9rem;
-    transition: color 0.3s ease;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+    color: var(--accent-primary);
+    font-size: 1.1rem;
+    font-family: 'Nunito', sans-serif;
+    letter-spacing: 0.5px;
+}
+
+body.explicit-mode .geems-label {
+    color: #ff00ff;
+    text-transform: uppercase;
+    font-style: italic;
+    background: #ffff00;
+    display: inline-block;
+    padding: 2px 8px;
+    transform: rotate(-1deg);
 }
 
 .geems-text {
-    color: inherit;
-    line-height: 1.7;
-    word-wrap: break-word;
-    font-size: 1rem;
+    line-height: 1.8;
+    font-size: 1.05rem;
+    color: #374151;
 }
 
 .geems-text strong {
-    color: #7c3aed;
+    color: var(--text-heading);
+    font-weight: 800;
 }
 
 .geems-text em {
-    color: #db2777;
-    font-style: italic;
+    color: var(--accent-tertiary);
+    text-decoration: underline;
+    text-decoration-style: wavy;
+    text-decoration-thickness: 2px;
 }
 
 .geems-text pre {
-    background-color: #1f2937; /* Dark background for code */
+    background-color: #f3f4f6;
     padding: 1rem;
-    border-radius: 0.5rem;
-    overflow-x: auto;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 0.9rem;
-    color: #d1d5db; /* Light text on dark background */
-    margin-top: 0.75rem;
-    margin-bottom: 0.75rem;
-    border: 1px solid #374151;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    border: 2px dashed #d1d5db;
+    color: #4b5563;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
 }
-
 
 /* Input and Textarea styles */
 .geems-input, .geems-textarea {
     width: 100%;
-    padding: 0.85rem;
-    border: 1px solid #d1d5db;
-    border-radius: 0.5rem;
-    box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    color: #1f2937;
+    padding: 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 15px;
     background-color: #f9fafb;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    box-sizing: border-box; /* Include padding and border in width */
-}
-
-.geems-input::placeholder, .geems-textarea::placeholder {
-    color: #9ca3af;
+    transition: all 0.3s ease;
+    font-family: var(--font-body);
+    font-size: 1rem;
 }
 
 .geems-input:focus, .geems-textarea:focus {
     outline: none;
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.2);
     background-color: white;
 }
 
-/* Radio and Checkbox option styling */
+/* Radio and Checkbox */
 .geems-radio-option, .geems-checkbox-option {
     display: flex;
     align-items: center;
-    margin-bottom: 0.75rem;
-    padding: 0.75rem 1rem;
-    border-radius: 0.5rem;
+    margin-bottom: 0.8rem;
+    padding: 1rem;
+    border-radius: 15px;
     cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
-    border: 1px solid #e5e7eb;
-    color: inherit;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+    background-color: #f3f4f6;
 }
 
 .geems-radio-option:hover, .geems-checkbox-option:hover {
-    background-color: #f0f9ff;
-    border-color: #a5b4fc;
+    background-color: #ccfbf1; /* Teal 100 */
+    border-color: var(--accent-primary);
+    transform: scale(1.02);
 }
 
-.geems-radio-option:active, .geems-checkbox-option:active {
-    transform: scale(0.98);
+body.explicit-mode .geems-radio-option:hover {
+    background-color: #ffff00;
+    border-color: #ff00ff;
+    color: #ff00ff;
+    font-weight: bold;
 }
 
-.geems-radio-option input[type="radio"], .geems-checkbox-option input[type="checkbox"] {
-    margin-right: 0.85rem;
-    cursor: pointer;
-    accent-color: #6366f1;
-    width: 1.1rem;
-    height: 1.1rem;
+.geems-radio-option input, .geems-checkbox-option input {
+    accent-color: var(--accent-primary);
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-right: 1rem;
 }
 
-.geems-radio-option label, .geems-checkbox-option label {
-    color: inherit;
-    flex-grow: 1;
-    cursor: pointer;
-}
-
-/* Slider styling */
+/* Slider */
 .geems-slider {
     width: 100%;
     cursor: pointer;
-    accent-color: #6366f1;
-    height: 0.6rem;
-    background: #e5e7eb;
-    border-radius: 9999px;
+    accent-color: var(--accent-primary);
+    height: 1rem;
+    background: #e2e8f0;
+    border-radius: 20px;
     appearance: none;
-    -webkit-appearance: none;
 }
 
 .geems-slider::-webkit-slider-thumb {
     appearance: none;
-    -webkit-appearance: none;
-    width: 1.25rem;
-    height: 1.25rem;
-    background: var(--slider-thumb-color, #4f46e5); /* Use CSS variable */
+    width: 1.5rem;
+    height: 1.5rem;
+    background: var(--accent-primary);
+    border: 3px solid white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     border-radius: 50%;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: transform 0.2s;
 }
 
-.geems-slider::-moz-range-thumb {
-    width: 1.25rem;
-    height: 1.25rem;
-    background: var(--slider-thumb-color, #4f46e5); /* Use CSS variable */
-    border-radius: 50%;
-    cursor: pointer;
-    border: none;
-    transition: background-color 0.3s ease;
+.geems-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
 }
 
-.geems-slider-value-display {
-    color: #4f46e5;
-    font-weight: 600;
-    min-width: 2.5rem;
-    transition: color 0.3s ease;
-    width: auto; /* Allow width to adjust */
-    text-align: right;
-}
-
-/* Image container and styling */
-.geems-image-container {
-    text-align: center;
-}
-
-.geems-image {
-    max-width: 100%;
-    height: auto;
-    border-radius: 0.75rem;
-    margin-bottom: 1rem;
-    background-color: #e5e7eb;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    border: 1px solid #d1d5db;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.geems-image-prompt {
-    font-size: 0.8rem;
-    color: #6b7280;
-    opacity: 0.8;
-    font-style: italic;
-    margin-top: 0.5rem;
-    word-wrap: break-word;
-    padding: 0 1rem;
-    padding-bottom: 1em;
-}
-
-/* Button styling */
+/* Buttons */
 .geems-button {
-    padding: 0.85rem 2rem;
-    background: linear-gradient(to right, #4f46e5, #7c3aed);
+    padding: 1rem 2.5rem;
+    background: linear-gradient(135deg, #2dd4bf, #0d9488); /* Teal Gradient */
     color: white;
     border: none;
-    border-radius: 0.5rem;
-    font-weight: 600;
+    border-radius: 50px;
+    font-weight: 700;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.1rem;
     cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
-    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 15px rgba(13, 148, 136, 0.4);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    white-space: nowrap;
+    letter-spacing: 1px;
 }
 
 .geems-button:hover {
-    background: linear-gradient(to right, #4338ca, #6d28d9);
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.15);
-    transform: translateY(-2px);
+    transform: translateY(-3px) rotate(1deg);
+    box-shadow: 0 6px 20px rgba(13, 148, 136, 0.5);
+    background: linear-gradient(135deg, #5eead4, #14b8a6);
 }
 
 .geems-button:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+    transform: translateY(1px);
 }
 
-.geems-button:disabled {
-    background: #a5b4fc;
-    cursor: not-allowed;
-    opacity: 0.7;
-    box-shadow: none;
-    transform: none;
+/* Explicit Mode Button */
+body.explicit-mode .geems-button {
+    background: yellow;
+    color: magenta;
+    border: 3px solid magenta;
+    box-shadow: 5px 5px 0px magenta;
+    text-shadow: none;
 }
 
-/* Specific style for Mode Toggle Button */
+body.explicit-mode .geems-button:hover {
+    background: magenta;
+    color: yellow;
+    border-color: yellow;
+    box-shadow: 5px 5px 0px cyan;
+    transform: translate(-2px, -2px);
+}
+
+/* Mode Toggle Button specific */
 #modeToggleButton {
-    background: linear-gradient(to right, #be185d, #9d174d); /* Pink/Red gradient for Explicit */
-    min-width: 150px;
+    background: linear-gradient(135deg, #f472b6, #db2777); /* Pink Gradient default */
 }
 
 #modeToggleButton.standard-mode {
-    background: linear-gradient(to right, #059669, #047857); /* Green gradient for Standard */
+     background: linear-gradient(135deg, #34d399, #059669); /* Green Gradient */
 }
 
-#modeToggleButton:hover {
-    background: linear-gradient(to right, #9d174d, #831843); /* Darker Pink/Red */
-}
-
-#modeToggleButton.standard-mode:hover {
-    background: linear-gradient(to right, #047857, #065f46); /* Darker Green */
-}
-
-/* Specific style for Reset Button */
+/* Reset Button */
 #resetGameButton {
-    background: linear-gradient(to right, #f97316, #ea580c); /* Orange gradient */
+    background: linear-gradient(135deg, #fbbf24, #d97706); /* Amber */
 }
 
-#resetGameButton:hover {
-    background: linear-gradient(to right, #ea580c, #c2410c); /* Darker Orange gradient */
-}
-
-
-/* Loading and Error message styling */
-.loading-indicator, .error-message {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 2rem;
-    font-size: 1.125rem;
-    border-radius: 0.75rem;
-    margin-top: 1rem;
-}
-
+/* Loading & Error */
 .loading-indicator {
-    color: #4f46e5;
-    background-color: #e0e7ff;
-    border: 1px solid #c7d2fe;
-}
-
-.loading-indicator svg {
-    width: 1.5rem;
-    height: 1.5rem;
+    background-color: #eff6ff;
+    color: var(--accent-primary);
+    border: 2px dashed #bfdbfe;
+    border-radius: 20px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 600;
 }
 
 .error-message {
-    color: #991b1b;
     background-color: #fef2f2;
-    border: 1px solid #fecaca;
-    text-align: center;
-    white-space: pre-wrap;
-    font-weight: 500;
+    color: #ef4444; /* Light red, not scary red */
+    border: 2px solid #fecaca;
+    border-radius: 20px;
 }
 
-/* API Key Input Section */
+/* API Key Section */
 #apiKeySection {
-    margin-bottom: 1.5rem;
     background: white;
-    padding: 1.5rem;
-    border-radius: 0.75rem;
-    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.08);
-    border-left: 5px solid #fbbf24;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
+    border: none;
+    border-top: 6px solid #fbbf24; /* Cheerful yellow top border */
 }
 
 #apiKeySection .geems-label {
-    color: #ca8a04;
+    color: #d97706;
 }
 
-#apiKeyInput {
-    width: 100%;
-}
-
-#apiKeySection .api-key-instructions a {
-    color: #4f46e5;
-    text-decoration: underline;
-}
-
-#apiKeySection .api-key-instructions a:hover {
-    color: #3730a3;
-}
-
-/* Analysis Toggle Styles */
+/* Analysis Toggle - Deceptive Folder */
 .analysis-toggle-container {
-    cursor: pointer;
-    position: relative;
-    padding-right: 3.5rem; /* Space for icon */
-    /* Border applied via JS based on Gemini analysis color */
-    border-left-width: 5px;
-    border-right-width: 1px;
-    border-top-width: 1px;
-    border-bottom-width: 1px;
-    border-style: solid;
-    border-color: transparent; /* Default */
-}
-
-.analysis-toggle-icon {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    right: 1rem;
-    width: 1.5rem;
-    height: 1.5rem;
-    color: #9ca3af;
-    opacity: 0.8;
-    transition: transform 0.3s ease-in-out, opacity 0.2s, color 0.2s;
-}
-
-.analysis-toggle-container:hover .analysis-toggle-icon {
-    opacity: 1;
-    color: var(--toggle-hover-color, #4f46e5); /* Use CSS variable for hover color */
-}
-
-.analysis-content {
-    color: inherit; /* Inherit color from parent */
-}
-
-.analysis-content pre {
-    background-color: #1f2937; /* Dark background for code */
+    background: #fff;
+    border: 2px dashed #cbd5e1 !important; /* Force dashed border */
+    border-radius: 12px;
     padding: 1rem;
-    border-radius: 0.5rem;
-    overflow-x: auto;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 0.9rem;
-    color: #d1d5db; /* Light text on dark background */
-    margin-top: 0.75rem;
-    margin-bottom: 0.75rem;
-    border: 1px solid #374151;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+    opacity: 0.7;
+    transition: opacity 0.3s;
+}
+.analysis-toggle-container:hover {
+    opacity: 1;
+    background: #f8fafc;
 }
 
-/* Analysis specific label styling inside the toggle */
-.analysis-content .geems-label {
-    font-size: 1rem; /* Slightly larger label */
-    color: inherit; /* Inherit color from parent (set by border color) */
-    margin-bottom: 0.4rem;
-    border-bottom: 1px dashed currentColor; /* Use parent color */
-    display: inline-block;
-    padding-bottom: 2px;
-    transition: color 0.3s ease, border-color 0.3s ease;
+/* Images */
+.geems-image {
+    border-radius: 20px;
+    border: 4px solid white;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    transition: all 0.5s ease;
 }
 
-/* Tweet Element Styling */
+body.explicit-mode .geems-image {
+    filter: contrast(1.2) saturate(1.2);
+    border-color: yellow;
+    box-shadow: 8px 8px 0px cyan;
+    transform: rotate(1deg);
+}
+
+/* Tweet Element - Cute Card */
 #tweet-element-wrapper {
-    border-left-color: #0ea5e9 !important; /* Specific blue color for tweet */
-    font-style: italic;
-    color: #374151; /* Darker gray text */
-    background-color: #f0f9ff !important; /* Light blue background */
-    padding: 1rem 1.25rem; /* Standard padding */
+    background: linear-gradient(to right, #e0f2fe, #f0f9ff) !important;
+    border-left: none !important;
+    border-radius: 20px;
+    border: 2px solid #7dd3fc;
 }
 
-#tweet-element-wrapper .geems-label {
-    font-weight: bold;
-    color: #0284c7 !important; /* Slightly darker blue for label */
-    margin-bottom: 0.25rem;
-    font-style: normal; /* Non-italic label */
-    border-bottom: none; /* No border on tweet label */
+/* Modal - Hidden Truth */
+.modal-content {
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
-/* --- Added Multiplayer Peer List Styles --- */
-
+/* Peer List */
 .peer-list-container {
-    display: flex;
-    gap: 0.75rem; /* 12px */
-    padding: 0.5rem 1rem; /* 8px 16px */
-    justify-content: center;
-    align-items: center;
-    background-color: rgba(255, 255, 255, 0.1); /* Slightly transparent background */
-    border-top: 1px solid rgba(209, 213, 219, 0.5); /* Light border */
-    margin-top: 1rem; /* Space above peer list */
-    flex-wrap: wrap; /* Allow wrapping on small screens */
-}
-.peer-icon-wrapper {
-    position: relative;
-    display: inline-block;
+    background: rgba(255,255,255,0.5);
+    border-radius: 50px;
+    border: 1px solid rgba(255,255,255,0.8);
 }
 .peer-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.5rem; /* 40px */
-    height: 2.5rem; /* 40px */
-    border-radius: 50%;
-    color: white;
-    font-weight: bold;
-    font-size: 1rem; /* 16px */
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    box-sizing: border-box; /* Include border in size */
-}
-.peer-icon-wrapper:hover .peer-icon {
-    transform: scale(1.1);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-.peer-icon-wrapper.viewing .peer-icon {
-    box-shadow: 0 0 0 3px #a78bfa; /* Purple ring when viewing */
-    transform: scale(1.05);
-}
-/* Tooltip styles */
-.tooltip .tooltiptext {
-    visibility: hidden;
-    width: max-content; /* Adjust width based on content */
-    max-width: 200px; /* Max width */
-    background-color: #555;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 5px 8px;
-    position: absolute;
-    z-index: 10;
-    bottom: 135%; /* Position above the icon */
-    left: 50%;
-    transform: translateX(-50%); /* Center the tooltip */
-    opacity: 0;
-    transition: opacity 0.3s;
-    font-size: 0.75rem; /* 12px */
-    word-wrap: break-word; /* Prevent long IDs from breaking layout */
-}
-.tooltip:hover .tooltiptext {
-    visibility: visible;
-    opacity: 1;
-}
-.tooltip .tooltiptext::after { /* Tooltip arrow */
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: #555 transparent transparent transparent;
-}
-/* --- End Multiplayer Styles --- */
-.modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1000; /* Sit on top */
-    left: 0;
-    top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgba(0,0,0,0.6); /* Black w/ opacity */
-    /* Use flexbox for centering */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.modal-content {
-    background-color: #fefefe;
-    padding: 25px;
-    border: 1px solid #888;
-    width: 80%; /* Responsive width */
-    max-width: 700px; /* Maximum width */
-    border-radius: 8px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    color: #333; /* Ensure text is readable */
-}
-.modal-close {
-    color: #aaa;
-    position: absolute;
-    top: 10px;
-    right: 20px;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-    line-height: 1;
-}
-.modal-close:hover,
-.modal-close:focus {
-    color: black;
-    text-decoration: none;
+    border: 2px solid white;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
