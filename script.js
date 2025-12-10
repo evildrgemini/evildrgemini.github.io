@@ -545,6 +545,7 @@ function renderSingleElement(element, index) {
                 renderText(wrapper, element, adjustedColor);
                 break; // Will be skipped for gemini_facing_analysis by the check above
             case 'textfield':
+            case 'text_input': // Alias for textfield
                 renderTextField(wrapper, element, adjustedColor);
                 break;
             case 'checkbox':
