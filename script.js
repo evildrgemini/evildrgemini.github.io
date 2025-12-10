@@ -580,6 +580,14 @@ function renderImage(wrapper, element, adjustedColor) {
     wrapper.classList.add('geems-image-container');
     wrapper.classList.remove('geems-element');
     wrapper.style.borderLeftColor = 'transparent';
+    if (element.label) {
+        const labelDiv = document.createElement('div');
+        // Changed class to make it look more like a title
+        labelDiv.className = 'geems-label text-center font-bold text-xl mb-4';
+        if (adjustedColor) labelDiv.style.color = adjustedColor;
+        labelDiv.textContent = element.label;
+        wrapper.appendChild(labelDiv);
+    }
     const img = document.createElement('img');
     img.className = 'geems-image';
     const imagePrompt = element.value || 'abstract image';
@@ -593,13 +601,6 @@ function renderImage(wrapper, element, adjustedColor) {
         img.alt = `Error loading image: ${imagePrompt.substring(0, 50)}...`;
     };
     wrapper.appendChild(img);
-    if (element.label) {
-        const labelDiv = document.createElement('div');
-        labelDiv.className = 'geems-label text-center font-semibold mt-2';
-        if (adjustedColor) labelDiv.style.color = adjustedColor;
-        labelDiv.textContent = element.label;
-        wrapper.appendChild(labelDiv);
-    }
     const promptText = document.createElement('p');
     promptText.className = 'geems-image-prompt';
     promptText.textContent = imagePrompt;
