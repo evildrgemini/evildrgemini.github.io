@@ -20,7 +20,8 @@ let hiddenAnalysisContentNotes = null; // To store content of gemini_facing_anal
 
 // --- Model Switching State ---
 const AVAILABLE_MODELS = [
-    //"gemini-3-pro-preview",
+    "gemini-3.0-pro-exp", // Updated name guess
+    "gemini-2.0-pro-exp-02-05", // Direct mapping name often works better
     "gemini-2.5-pro",
     "gemini-2.5-flash",
     "gemini-2.0-pro",
@@ -32,6 +33,10 @@ let currentModelIndex = 0;
 const MIN_CONTRAST_LIGHTNESS = 0.55;
 const LOCAL_STORAGE_KEY = 'geemsGameStateToRestore';
 const DEFAULT_HOST_ID = 'geems-default-game-host'; // Define a host ID for players to connect to
+
+// Force reset model index to 0 (Gemini 3) on load if it looks stale or just to be sure to favor the new default
+// Alternatively, logic in init could handle this.
+const FORCE_RESET_MODEL_INDEX = true;
 
 // --- DOM Element References ---
 const uiContainer = document.getElementById('ui-elements');
@@ -1480,6 +1485,14 @@ function initializeGame() {
             currentUiJson = savedState.currentUiJson || null;
             isExplicitMode = savedState.isExplicitMode === true || savedState.isMasturbationMode === true;
             currentModelIndex = savedState.currentModelIndex || 0;
+
+            // --- FORCE RESET MODIFICATION ---
+            if (typeof FORCE_RESET_MODEL_INDEX !== 'undefined' && FORCE_RESET_MODEL_INDEX) {
+                console.log("Forcing model index reset to 0 (Gemini 3) to ensure new defaults are used.");
+                currentModelIndex = 0;
+            }
+            // -------------------------------
+
             apiKeyLocked = true;
             autoStarted = true;
             console.log("State restored from localStorage.");

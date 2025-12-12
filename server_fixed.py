@@ -40,25 +40,98 @@ def read_root():
 # Assuming the user might attach other routes later or this is just the skeleton.
 @app.post("/v1/chat/completions")
 async def chat_completions(request: fastapi.Request):
-    # This is a placeholder. You need to integrate your actual LLM logic here.
-    # If this script is just a wrapper, make sure your logic is hooked up.
-    # For now, consistent with the snippet provided, we just return a mock or expect the user expands this.
+    try:
+        from google.colab import ai
+    except ImportError:
+        return {"error": "google.colab.ai not found. This server must be run in Google Colab."}
+
     try:
         body = await request.json()
         print(f"Received request: {body}")
-        # Mock response mimicking OpenAI format
+        
+        # Extract the last user message
+        messages = body.get("messages", [])
+        if not messages:
+            return {"error": "No messages provided"}
+            
+        last_message = messages[-1]
+        prompt = last_message.get("content", "")
+        
+        requested_model = body.get("model", "gemini-2.0-flash")
+        
+        # Map client model names to Colab model names
+        # Dynamic lookup: Find the best matching model from available Colab models
+        try:
+            available_models = list(ai.list_models())
+            print(f"Available Colab Models: {available_models}")
+        except Exception as e:
+            print(f"Could not list models: {e}")
+            available_models = []
+
+        colab_model = None
+        
+        # 1. Direct Model Map (Overrides)
+        model_map = {
+            "gemini-2.5-pro": "google/gemini-2.0-pro-exp-02-05",
+            "gemini-2.5-flash": "google/gemini-2.0-flash-001",
+        }
+        
+        if requested_model in model_map:
+            colab_model = model_map[requested_model]
+        
+        # 2. Fuzzy Search if not mapped
+        if not colab_model:
+            # Normalize request (e.g., "gemini-3.0-pro" -> "gemini-3.0-pro")
+            search_term = requested_model.lower().replace("preview", "").replace("exp", "")
+            
+            # Simple heuristic: look for the most specific match
+            for m in available_models:
+                m_name = m.name if hasattr(m, 'name') else str(m)
+                if search_term in m_name.lower():
+                    colab_model = m_name
+                    break
+            
+            # Special case for "Gemini 3" if user just asks for it generically
+            if not colab_model and "gemini-3" in requested_model:
+                 for m in available_models:
+                    m_name = m.name if hasattr(m, 'name') else str(m)
+                    if "gemini-3" in m_name.lower(): # Match any Gemini 3
+                        colab_model = m_name
+                        break
+
+        # 3. Fallback
+        if not colab_model:
+             colab_model = "google/gemini-2.0-flash-001" 
+             print("Model not found in map or list. Using fallback.")
+
+        print(f"Mapping {requested_model} -> {colab_model}")
+
+        # Generate text
+        try:
+            generated_text = ai.generate_text(prompt, model_name=colab_model)
+        except Exception as gen_error:
+            print(f"Generation error with {colab_model}: {gen_error}")
+            # Fallback
+            fallback_model = "google/gemini-2.0-flash-lite-preview-02-05"
+            print(f"Retrying with fallback: {fallback_model}")
+            generated_text = ai.generate_text(prompt, model_name=fallback_model)
+
+        print(f"Generated text length: {len(generated_text)}")
+
+        # Return in OpenAI-compatible format
         return {
             "choices": [
                 {
                     "message": {
-                        "content": "[{\"type\": \"text\", \"text\": \"Hello from the CORS-enabled server! (Array Format)\"}]"
+                        "content": generated_text
                     }
                 }
             ]
         }
     except Exception as e:
         print(f"Error handling request: {e}")
-        return {"error": str(e)}
+        # Return a 500 error so the client's !response.ok block catches it and prints the error body
+        return fastapi.Response(content=str(e), status_code=500)
 
 def cleanup():
     global active_server, server_thread
