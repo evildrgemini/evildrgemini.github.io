@@ -522,14 +522,20 @@ function renderUI(uiJsonArray) {
     const initialMsgElementRef = document.getElementById('initial-message');
     uiContainer.innerHTML = '';
     if (!Array.isArray(uiJsonArray)) {
-        console.error("Invalid UI data: Expected an array.", uiJsonArray);
-        showError("Invalid UI data format from API.");
-        if (initialMsgElementRef) {
-            const clonedInitialMsg = initialMsgElementRef.cloneNode(true);
-            clonedInitialMsg.style.display = 'block';
-            uiContainer.appendChild(clonedInitialMsg);
+        // --- MODIFICATION: Attempt to extract array from 'ui' property ---
+        if (uiJsonArray && typeof uiJsonArray === 'object' && Array.isArray(uiJsonArray.ui)) {
+            console.log("Detected wrapped UI object. Extracting array from 'ui' property.");
+            uiJsonArray = uiJsonArray.ui;
+        } else {
+            console.error("Invalid UI data: Expected an array.", uiJsonArray);
+            showError("Invalid UI data format from API.");
+            if (initialMsgElementRef) {
+                const clonedInitialMsg = initialMsgElementRef.cloneNode(true);
+                clonedInitialMsg.style.display = 'block';
+                uiContainer.appendChild(clonedInitialMsg);
+            }
+            return;
         }
-        return;
     }
     uiJsonArray.forEach((element, index) => {
         renderSingleElement(element, index);
