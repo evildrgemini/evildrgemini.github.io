@@ -101,7 +101,7 @@ async def chat_completions(request: fastapi.Request):
 
         # 3. Fallback
         if not colab_model:
-             colab_model = "google/gemini-2.0-flash-001" 
+             colab_model = "google/gemini-3.0-pro-exp"
              print("Model not found in map or list. Using fallback.")
 
         print(f"Mapping {requested_model} -> {colab_model}")
