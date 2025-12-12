@@ -433,10 +433,15 @@ async function callOpenAICompatibleAPI(baseUrl, promptText, modelName) {
     if (!response.ok) {
         let errorBody = `API request failed (${response.status})`;
         try {
-            const errorJson = await response.json();
-            errorBody += `: ${JSON.stringify(errorJson)}`;
+            const errorText = await response.text();
+            try {
+                const errorJson = JSON.parse(errorText);
+                errorBody += `: ${JSON.stringify(errorJson)}`;
+            } catch (e) {
+                errorBody += `: ${errorText}`;
+            }
         } catch (e) {
-            errorBody += `: ${await response.text()}`;
+            errorBody += ": Could not read error body.";
         }
         throw new Error(errorBody);
     }
