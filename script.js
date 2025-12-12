@@ -320,12 +320,14 @@ async function fetchTurnData(playerActionsJson) {
     updateHistoryQueue(playerActionsJson); // Update history. Clear flag upon successful response from Gemini.
     console.log("fetchTurnData called.");
     initAudioContext();
-    initAudioContext();
     let apiKey = apiKeyInput.value.trim();
 
+    // Check if input is a URL (OpenAI Base URL)
+    const isBaseUrl = apiKey.startsWith("http://") || apiKey.startsWith("https://");
+
     // --- MODIFICATION: Check for passphrase ---
-    // If not a standard Google API key (doesn't start with AIza), try to use it as a passphrase
-    if (apiKey && !apiKey.startsWith("AIza")) {
+    // If not a standard Google API key (doesn't start with AIza) AND not a URL, try to use it as a passphrase
+    if (!isBaseUrl && apiKey && !apiKey.startsWith("AIza")) {
         console.log("Input does not look like an API key. Attempting to decrypt embedded key with input as passphrase...");
         const decrypted = decryptEmbeddedKey(EMBEDDED_ENCRYPTED_KEY, apiKey);
         // Simple heuristic: legitimate key should start with AIza
@@ -367,7 +369,9 @@ async function fetchTurnData(playerActionsJson) {
         try {
             const fullPrompt = constructPrompt(playerActionsJson, historyQueue, isExplicitMode);
             console.log(`Sending Prompt to ${currentModel}`);
-            const jsonStringResponse = await callRealGeminiAPI(apiKey, fullPrompt, currentModel);
+            const jsonStringResponse = isBaseUrl
+                ? await callOpenAICompatibleAPI(apiKey, fullPrompt, currentModel)
+                : await callRealGeminiAPI(apiKey, fullPrompt, currentModel);
             const responseJson = JSON.parse(jsonStringResponse);
             console.log(`Parsed API response from ${currentModel}.`);
             processSuccessfulResponse(responseJson, playerActionsJson); // Pass actions that led to this response
@@ -403,6 +407,46 @@ async function fetchTurnData(playerActionsJson) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     setLoading(false);
+}
+
+/** Calls an OpenAI-compatible API (e.g. local server). */
+async function callOpenAICompatibleAPI(baseUrl, promptText, modelName) {
+    const cleanBaseUrl = baseUrl.replace(/\/$/, "");
+    const API_URL = `${cleanBaseUrl}/v1/chat/completions`;
+
+    const requestBody = {
+        model: modelName,
+        messages: [{ role: "user", content: promptText }],
+        temperature: 1.0
+    };
+
+    const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) {
+        let errorBody = `API request failed (${response.status})`;
+        try {
+            const errorJson = await response.json();
+            errorBody += `: ${JSON.stringify(errorJson)}`;
+        } catch (e) {
+            errorBody += `: ${await response.text()}`;
+        }
+        throw new Error(errorBody);
+    }
+
+    const responseData = await response.json();
+    if (!responseData.choices || responseData.choices.length === 0) {
+        throw new Error('No choices in API response.');
+    }
+
+    let content = responseData.choices[0].message.content;
+    const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+    if (jsonMatch && jsonMatch[1]) content = jsonMatch[1];
+
+    return content.trim();
 }
 
 /** Calls the real Google AI (Gemini) API. */
